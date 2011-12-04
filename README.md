@@ -9,6 +9,19 @@ Installation
 If your Radiant site is running on version 0.6.9 or greater, you can install extensions very easily. If you are using an 
 older version of Radiant, don't worry, it is still quite straightforward. Instructions follow for both.
 
+
+### Installing for Radiant 1.0
+
+In a terminal, `cd` to the root directory of your Radiant site. 
+
+Add the following line to your Gemfile
+
+    gem 'radiant-sibling-tags-extension'
+
+Run
+
+    bundle install
+
 ### Installing for Radiant 0.6.9+
 
 In a terminal, `cd` to the root directory of your Radiant site. Run the following command:

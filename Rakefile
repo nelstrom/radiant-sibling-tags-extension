@@ -1,3 +1,6 @@
+# -*- encoding: utf-8 -*-
+require "bundler/gem_tasks"
+
 # I think this is the one that should be moved to the extension Rakefile template
  
 # In rails 1.2, plugins aren't available in the path until they're loaded.
@@ -7,27 +10,32 @@
 # Determine where the RSpec plugin is by loading the boot
 unless defined? RADIANT_ROOT
   ENV["RAILS_ENV"] = "test"
-  case
-  when ENV["RADIANT_ENV_FILE"]
-    require File.dirname(ENV["RADIANT_ENV_FILE"]) + "/boot"
-  when File.dirname(__FILE__) =~ %r{vendor/radiant/vendor/extensions}
-    require "#{File.expand_path(File.dirname(__FILE__) + "/../../../../../")}/config/boot"
+  boot = if ENV["RADIANT_ENV_FILE"]
+    File.dirname(ENV["RADIANT_ENV_FILE"]) + "/boot"
+  elsif File.dirname(__FILE__) =~ %r{vendor/radiant/vendor/extensions}
+    "#{File.expand_path(File.dirname(__FILE__) + "/../../../../../")}/config/boot"
   else
-    require "#{File.expand_path(File.dirname(__FILE__) + "/../../../")}/config/boot"
+    "#{File.expand_path(File.dirname(__FILE__) + "/../../../")}/config/boot"
+  end
+  begin
+    require boot
+  rescue LoadError => e
+    warn "Can’t boot radiant, #{e.message}"
   end
 end
- 
+
 require 'rake'
 require 'rake/rdoctask'
 require 'rake/testtask'
- 
-rspec_base = File.expand_path(RADIANT_ROOT + '/vendor/plugins/rspec/lib')
-$LOAD_PATH.unshift(rspec_base) if File.exist?(rspec_base)
+
+if defined? RADIANT_ROOT
+  rspec_base = File.expand_path(RADIANT_ROOT + '/vendor/plugins/rspec/lib')
+  $LOAD_PATH.unshift(rspec_base) if File.exist?(rspec_base)
+  # Cleanup the RADIANT_ROOT constant so specs will load the environment
+  Object.send(:remove_const, :RADIANT_ROOT)
+end
 require 'spec/rake/spectask'
 # require 'spec/translator'
- 
-# Cleanup the RADIANT_ROOT constant so specs will load the environment
-Object.send(:remove_const, :RADIANT_ROOT)
  
 extension_root = File.expand_path(File.dirname(__FILE__))
  
